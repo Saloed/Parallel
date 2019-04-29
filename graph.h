@@ -80,6 +80,35 @@ public:
 
     }
 
+    std::string diff(const Path &other) {
+        std::stringstream ss;
+        ss << "\nDist\n";
+        vector_diff(ss, dist, other.dist);
+        ss << "\nEdges\n";
+        vector_diff(ss, incoming_edge, other.incoming_edge);
+        ss << "\nVertices\n" << vertices_count << " " << other.vertices_count
+           << "\nCycle\n" << negative_cycle_in_graph << " " << other.negative_cycle_in_graph
+           <<"\n";
+        return ss.str();
+    }
+
+    void vector_diff(std::stringstream &ss, const std::vector<int> &vec1, const std::vector<int> &vec2) {
+        auto size = std::max(vec1.size(), vec2.size());
+        for (auto i = 0; i < size; i++) {
+            if (i >= vec1.size()) {
+                ss << " " << i << " (left: None, right: " << vec2[i] << ") ";
+                continue;
+            }
+            if (i >= vec2.size()) {
+                ss << " " << i << " (left: " << vec1[i] << ", right: None ) ";
+                continue;
+            }
+            if (vec1[i] == vec2[i]) continue;
+            ss << " " << i << " (left: " << vec1[i] << ", right: " << vec2[i] << " ) ";
+        }
+    }
+
+
     ~Path() = default;
 
     unsigned int vertices_count;
@@ -89,7 +118,7 @@ public:
 
 
     bool operator==(const Path &other) const {
-        return vertices_count == other.vertices_count && dist == other.dist && incoming_edge == other.incoming_edge &&
+        return vertices_count == other.vertices_count && dist == other.dist &&
                negative_cycle_in_graph == other.negative_cycle_in_graph;
     }
 };

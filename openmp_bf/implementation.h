@@ -33,18 +33,17 @@ namespace OpenMP {
             int v_end = local_end[my_rank];
             for (int i = 0; i < n - 1; i++) {
                 if (break_loop) break;
-
+                auto local_dist = path.dist;
                 for (int u = 0; u < n; u++) {
                     for (int v = v_start; v < v_end; v++) {
                         if (!graph.edgeExists(u, v)) continue;
                         auto weight = graph.edgeWeight(u, v);
-                        auto newWeight = path.dist[u] + weight;
+                        auto newWeight = local_dist[u] + weight;
                         if (newWeight < path.dist[v]) {
                             if (!has_change) has_change = true;
                             path.dist[v] = newWeight;
                             path.incoming_edge[v] = u;
                         }
-
                     }
                 }
 
