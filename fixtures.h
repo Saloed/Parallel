@@ -47,5 +47,5 @@ private:
 class SmallRandomGraphFixture : public RandomGraphFixture<10> {
 };
 
-class GreatRandomGraphFixture : public RandomGraphFixture<100> {
+class GreatRandomGraphFixture : public RandomGraphFixture<1000> {
 };

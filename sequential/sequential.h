@@ -2,10 +2,13 @@
 
 #include "../graph.h"
 
+#include <chrono>
+
 namespace Sequential {
     Path bellman_ford(const Graph &graph) {
         Path path(graph.size);
         bool has_change;
+
         for (int i = 0; i < graph.size - 1; i++) {
             has_change = false;
             for (int u = 0; u < graph.size; u++) {
@@ -24,6 +27,7 @@ namespace Sequential {
                 return path;
             }
         }
+
         for (int u = 0; u < graph.size; u++) {
             for (int v = 0; v < graph.size; v++) {
                 if (!graph.edgeExists(u, v)) continue;

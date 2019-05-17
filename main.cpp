@@ -1,7 +1,7 @@
 #include <hayai/hayai.hpp>
 #include "sequential/test.h"
 #include "openmp_bf/test.h"
-#include "pthread_bf/test.h"
+//#include "pthread_bf/test.h"
 //#include "test_correctness.h"
 
 int main() {

@@ -25,6 +25,7 @@ namespace OpenMP {
         Path path(n);
         std::atomic_bool has_change = false;
         std::atomic_bool break_loop = false;
+        auto local_dist = path.dist;
 
 #pragma omp parallel
         {
@@ -33,7 +34,6 @@ namespace OpenMP {
             int v_end = local_end[my_rank];
             for (int i = 0; i < n - 1; i++) {
                 if (break_loop) break;
-                auto local_dist = path.dist;
                 for (int u = 0; u < n; u++) {
                     for (int v = v_start; v < v_end; v++) {
                         if (!graph.edgeExists(u, v)) continue;
@@ -46,12 +46,13 @@ namespace OpenMP {
                         }
                     }
                 }
-
 #pragma omp barrier
 #pragma omp single
                 {
                     break_loop = !has_change;
                     has_change = false;
+                    local_dist = path.dist;
+
                 }
 
             }
