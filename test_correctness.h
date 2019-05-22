@@ -9,6 +9,6 @@ bool test_omp() {
     fixture.SetUp();
     auto &&graph = fixture.getGraph();
     auto &&path1 = Sequential::bellman_ford(graph);
-    auto &&path2 = OpenMP::bellman_ford<8>(graph);
+    auto &&path2 = OpenMP::bellman_ford < 8>(graph);
     return path1 == path2;
 }

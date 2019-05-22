@@ -3,49 +3,40 @@
 #include <hayai/hayai.hpp>
 #include "graph.h"
 #include "sequential/sequential.h"
-
+#include "test_data.h"
+#include <functional>
 
 template<unsigned int graph_size>
 class RandomGraphFixture : public ::hayai::Fixture {
 public:
     void SetUp() override {
-        graph = new Graph(graph_size);
-        fillGraphRandomly();
-        targetPath = new Path(Sequential::bellman_ford(*graph));
+        graph = TestData<graph_size>::data[run];
+        targetPath = new Path(graph_size);
+        Sequential::bellman_ford(0, graph, targetPath);
+        run++;
     }
 
     void TearDown() override {
-        delete graph;
+        delete targetPath;
     }
 
-    Graph getGraph() const {
-        return *graph;
-    }
-
-    Path getPath() const {
-        return *targetPath;
+    void runTest(int num_threads, const std::function<void(int, const Graph *, Path *)> &test) {
+        auto &&path = new Path(graph->size);
+        test(num_threads, graph, path);
+        if (!(*path == *targetPath)) throw std::invalid_argument("result is incorrect");
+        delete path;
     }
 
 private:
-
-    void fillGraphRandomly() {
-        std::random_device r;
-        std::default_random_engine e1(r());
-        std::uniform_int_distribution<int> uniform_dist(1, 100000);
-        for (auto i = 0; i < graph_size; i++) {
-            for (auto j = 0; j < graph_size; j++) {
-                graph->addEdge(i, j, uniform_dist(e1));
-            }
-        }
-    }
+    int run = 0;
 
     Graph *graph = nullptr;
     Path *targetPath = nullptr;
 };
 
 
-class SmallRandomGraphFixture : public RandomGraphFixture<10> {
+class SmallRandomGraphFixture : public RandomGraphFixture<SMALL_SIZE> {
 };
 
-class GreatRandomGraphFixture : public RandomGraphFixture<1000> {
+class GreatRandomGraphFixture : public RandomGraphFixture<GREAT_SIZE> {
 };

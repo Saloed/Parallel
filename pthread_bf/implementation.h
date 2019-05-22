@@ -58,7 +58,8 @@ namespace Pthread {
         return nullptr;
     }
 
-    Path bellman_ford(int num_threads, const Graph &graph) {
+    void bellman_ford(int num_threads, const Graph *graphArg, Path* path) {
+        auto&& graph = *graphArg;
         unsigned int n = graph.size;
 
         int ave = n / num_threads;
@@ -84,10 +85,8 @@ namespace Pthread {
         pthread_barrier_t barrier;
         pthread_barrier_init(&barrier, nullptr, num_threads);
 
-        Path path(n);
-
         for (auto i = 0; i < num_threads; i++) {
-            arguments[i] = ThreadArg{i, num_threads, &barrier, changes, &path, &graph};
+            arguments[i] = ThreadArg{i, num_threads, &barrier, changes, path, graphArg};
             pthread_create(&threads[i], nullptr, thread_fn, (void *) &arguments[i]);
         }
 
@@ -107,14 +106,13 @@ namespace Pthread {
             for (int v = 0; v < n; v++) {
                 if (!graph.edgeExists(u, v)) continue;
                 int weight = graph.edgeWeight(u, v);
-                if (path.dist[u] + weight < path.dist[v]) {
+                if (path->dist[u] + weight < path->dist[v]) {
                     has_change = true;
                 }
 
             }
         }
-        path.negative_cycle_in_graph = has_change;
+        path->negative_cycle_in_graph = has_change;
 
-        return path;
     }
 }

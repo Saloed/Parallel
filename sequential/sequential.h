@@ -5,26 +5,27 @@
 #include <chrono>
 
 namespace Sequential {
-    Path bellman_ford(const Graph &graph) {
-        Path path(graph.size);
+    void bellman_ford(int ignored, const Graph *graphArg, Path *path) {
         bool has_change;
-
+        auto &&graph = *graphArg;
         for (int i = 0; i < graph.size - 1; i++) {
+            auto local_dist = path->dist;
             has_change = false;
             for (int u = 0; u < graph.size; u++) {
                 for (int v = 0; v < graph.size; v++) {
                     if (!graph.edgeExists(u, v)) continue;
                     int weight = graph.edgeWeight(u, v);
-                    if (path.dist[u] + weight < path.dist[v]) {
+                    auto newWeight = local_dist[u] + weight;
+                    if (newWeight < path->dist[v]) {
                         has_change = true;
-                        path.dist[v] = path.dist[u] + weight;
-                        path.incoming_edge[v] = u;
+                        path->dist[v] = newWeight;
+                        path->incoming_edge[v] = u;
                     }
 
                 }
             }
             if (!has_change) {
-                return path;
+                return;
             }
         }
 
@@ -32,13 +33,12 @@ namespace Sequential {
             for (int v = 0; v < graph.size; v++) {
                 if (!graph.edgeExists(u, v)) continue;
                 int weight = graph.edgeWeight(u, v);
-                if (path.dist[u] + weight < path.dist[v]) {
-                    path.negative_cycle_in_graph = true;
-                    return path;
+                if (path->dist[u] + weight < path->dist[v]) {
+                    path->negative_cycle_in_graph = true;
+                    return;
                 }
 
             }
         }
-        return path;
     }
 }

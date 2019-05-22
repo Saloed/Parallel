@@ -5,7 +5,8 @@
 #include "omp.h"
 
 namespace OpenMP {
-    Path bellman_ford(int num_threads, const Graph &graph) {
+    void bellman_ford(int num_threads, const Graph *graphArg, Path *path) {
+        auto &&graph = *graphArg;
         unsigned int n = graph.size;
         omp_set_num_threads(num_threads);
 
@@ -22,10 +23,9 @@ namespace OpenMP {
             }
         }
 
-        Path path(n);
         std::atomic_bool has_change = false;
         std::atomic_bool break_loop = false;
-        auto local_dist = path.dist;
+        auto local_dist = path->dist;
 
 #pragma omp parallel
         {
@@ -39,10 +39,10 @@ namespace OpenMP {
                         if (!graph.edgeExists(u, v)) continue;
                         auto weight = graph.edgeWeight(u, v);
                         auto newWeight = local_dist[u] + weight;
-                        if (newWeight < path.dist[v]) {
+                        if (newWeight < path->dist[v]) {
                             if (!has_change) has_change = true;
-                            path.dist[v] = newWeight;
-                            path.incoming_edge[v] = u;
+                            path->dist[v] = newWeight;
+                            path->incoming_edge[v] = u;
                         }
                     }
                 }
@@ -51,14 +51,14 @@ namespace OpenMP {
                 {
                     break_loop = !has_change;
                     has_change = false;
-                    local_dist = path.dist;
+                    local_dist = path->dist;
 
                 }
 
             }
         }
 
-        if (!has_change) return path;
+        if (!has_change) return;
 
         has_change = false;
 #pragma omp for collapse(2)
@@ -66,13 +66,12 @@ namespace OpenMP {
             for (int v = 0; v < n; v++) {
                 if (!graph.edgeExists(u, v)) continue;
                 int weight = graph.edgeWeight(u, v);
-                if (path.dist[u] + weight < path.dist[v]) {
+                if (path->dist[u] + weight < path->dist[v]) {
                     has_change = true;
                 }
 
             }
         }
-        path.negative_cycle_in_graph = has_change;
-        return path;
-    }
+        path->negative_cycle_in_graph = has_change;
+   }
 }
