@@ -38,46 +38,11 @@ private:
     std::vector<bool> edge_mask;
 };
 
-
-class AtomicPath {
-public:
-    explicit AtomicPath(unsigned int size) : vertices_count(size) {
-        dist = std::vector<std::atomic_int>(size);
-        incoming_edge = std::vector<std::atomic_int>(size);
-        dist[0] = 0;
-        incoming_edge[0] = 0;
-        for (auto i = 1; i < vertices_count; i++) {
-            dist[i] = INF;
-            incoming_edge[i] = -1;
-        }
-    }
-
-    ~AtomicPath() = default;
-
-    const unsigned int vertices_count;
-    std::vector<std::atomic_int> dist;
-    std::vector<std::atomic_int> incoming_edge;
-    bool negative_cycle_in_graph = false;
-
-};
-
-
 class Path {
 public:
     explicit Path(unsigned int size) : vertices_count(size), dist(size, INF), incoming_edge(size, -1) {
         dist[0] = 0;
         incoming_edge[0] = 0;
-    }
-
-    Path(const AtomicPath &ap) : vertices_count(ap.vertices_count) {
-        negative_cycle_in_graph = ap.negative_cycle_in_graph;
-        dist = std::vector<int>(vertices_count);
-        incoming_edge = std::vector<int>(vertices_count);
-        for (auto i = 0; i < vertices_count; i++) {
-            dist[i] = ap.dist[i];
-            incoming_edge[i] = ap.incoming_edge[i];
-        }
-
     }
 
     std::string diff(const Path &other) {
